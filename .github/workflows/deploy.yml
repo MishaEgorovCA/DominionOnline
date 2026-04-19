@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Start ssh-agent and add key
-        uses: webfactory/ssh-agent@v0.9.0
+        uses: webfactory/ssh-agent@v0.10.0
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
@@ -31,5 +31,6 @@ jobs:
           git pull origin main
           npm ci
           npm run build
-          sudo systemctl restart dominion
+          # Requires NOPASSWD for this command in sudoers (non-interactive SSH cannot enter a password).
+          sudo -n systemctl restart dominion
           EOF
