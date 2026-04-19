@@ -1,0 +1,90 @@
+:root {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  background: #1a1d23;
+  color: #e8e6e3;
+  line-height: 1.5;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+button {
+  cursor: pointer;
+  font: inherit;
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: #2a2f38;
+  color: inherit;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+input {
+  font: inherit;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: #12151a;
+  color: inherit;
+}
+
+.layout {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1rem;
+}
+
+h1 {
+  font-weight: 600;
+  font-size: 1.35rem;
+  margin: 0 0 1rem;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.supply {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 0.4rem;
+  margin: 0.75rem 0;
+}
+
+.pile {
+  background: #252a33;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+}
+
+.hand {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.5rem 0;
+}
+
+.card-btn.selected {
+  outline: 2px solid #6ab0ff;
+}
+
+.prompt {
+  background: #2d1f3a;
+  padding: 0.75rem;
+  border-radius: 8px;
+  margin: 0.5rem 0;
+}
+
+.err {
+  color: #f88;
+  margin: 0.25rem 0;
+}

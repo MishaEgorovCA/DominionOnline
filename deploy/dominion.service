@@ -1,0 +1,17 @@
+[Unit]
+Description=Dominion Online game server
+After=network.target
+
+[Service]
+Type=simple
+User=www-data
+WorkingDirectory=/opt/dominion-online/packages/server
+Environment=NODE_ENV=production
+Environment=PORT=3333
+Environment=DATA_DIR=/var/lib/dominion-online
+Environment=CLIENT_DIST=/opt/dominion-online/packages/client/dist
+ExecStart=/usr/bin/node dist/index.js
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
