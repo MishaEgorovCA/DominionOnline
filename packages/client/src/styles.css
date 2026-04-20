@@ -88,3 +88,40 @@ h1 {
   color: #f88;
   margin: 0.25rem 0;
 }
+
+/* Card hover details (see CardTip.tsx); title attribute is fallback for touch */
+.card-tip-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+.card-tip-wrap .card-tip-popup {
+  display: none;
+  position: absolute;
+  z-index: 50;
+  left: 0;
+  top: calc(100% + 4px);
+  min-width: 220px;
+  max-width: min(340px, 92vw);
+  padding: 0.5rem 0.65rem;
+  background: #1e2430;
+  border: 1px solid #4a5568;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+  text-align: left;
+}
+
+.card-tip-wrap:hover .card-tip-popup,
+.card-tip-wrap:focus-within .card-tip-popup {
+  display: block;
+}
+
+/* Avoid clipping inside flex/grid parents */
+.supply .card-tip-wrap,
+.hand .card-tip-wrap {
+  max-width: 100%;
+}

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getCard, type Command } from "@dominion/engine";
+import { CardTip } from "./CardTip.js";
 
 type RoomSummary = {
   roomId: string;
@@ -260,7 +261,15 @@ export function App() {
                   Random kingdom
                 </button>
               </div>
-              <p>Kingdom: {(room.kingdom ?? []).map((k) => cardLabel(k)).join(", ")}</p>
+              <p className="row" style={{ flexWrap: "wrap", alignItems: "baseline" }}>
+                Kingdom:{" "}
+                {(room.kingdom ?? []).map((k, i) => (
+                  <span key={k}>
+                    {i > 0 ? ", " : null}
+                    <CardTip cardId={k}>{cardLabel(k)}</CardTip>
+                  </span>
+                ))}
+              </p>
             </div>
           )}
 
@@ -276,7 +285,9 @@ export function App() {
                   .filter(([, n]) => n > 0)
                   .map(([id, n]) => (
                     <div key={id} className="pile">
-                      {cardLabel(id)} ×{n}
+                      <CardTip cardId={id}>
+                        {cardLabel(id)} ×{n}
+                      </CardTip>
                     </div>
                   ))}
               </div>
@@ -286,7 +297,12 @@ export function App() {
                 <div key={pid}>
                   {pid.slice(0, 8)}… — hand {game.players[pid]?.handSize} — deck{" "}
                   {game.players[pid]?.deckSize} — in play:{" "}
-                  {(game.players[pid]?.inPlay ?? []).map(cardLabel).join(", ")}
+                  {(game.players[pid]?.inPlay ?? []).map((cid, i) => (
+                    <span key={`${pid}-ip-${i}`}>
+                      {i > 0 ? ", " : null}
+                      <CardTip cardId={cid}>{cardLabel(cid)}</CardTip>
+                    </span>
+                  ))}
                 </div>
               ))}
 
@@ -319,8 +335,10 @@ export function App() {
                         <p>Select cards to discard (down to 3).</p>
                         <div className="hand">
                           {hand.map((c, i) => (
-                            <button
+                            <CardTip
                               key={i}
+                              cardId={c}
+                              as="button"
                               type="button"
                               className={
                                 selected.includes(i) ? "card-btn selected" : "card-btn"
@@ -328,7 +346,7 @@ export function App() {
                               onClick={() => toggleSel(i)}
                             >
                               {cardLabel(c)}
-                            </button>
+                            </CardTip>
                           ))}
                         </div>
                         <button
@@ -446,13 +464,17 @@ export function App() {
                         {Object.entries(game.supply)
                           .filter(([, n]) => n > 0)
                           .map(([id]) => (
-                            <button
+                            <CardTip
                               key={id}
+                              cardId={id}
+                              as="button"
                               type="button"
-                              onClick={() => sendCmd({ name: "buy", card: id as never })}
+                              onClick={() =>
+                                sendCmd({ name: "buy", card: id as never })
+                              }
                             >
                               Buy {cardLabel(id)}
-                            </button>
+                            </CardTip>
                           ))}
                       </div>
                       <button

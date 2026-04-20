@@ -1,5 +1,11 @@
 export type { CardId, CardDef, CardType } from "./cards.js";
-export { CARD_IDS, KINGDOM_IDS, RECOMMENDED_FIRST_GAME, getCard } from "./cards.js";
+export {
+  CARD_IDS,
+  KINGDOM_IDS,
+  RECOMMENDED_FIRST_GAME,
+  getCard,
+  formatCardTooltip,
+} from "./cards.js";
 export type {
   GameState,
   PlayerId,
