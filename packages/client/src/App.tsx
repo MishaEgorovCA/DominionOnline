@@ -159,8 +159,9 @@ export function App() {
               Loading game…
             </p>
           )}
-          {showGame && game && you && (
+          {showGame && game && you && room && (
             <GameScreen
+              room={room}
               game={game}
               you={you}
               send={send}

@@ -2,11 +2,19 @@ import type { Dispatch, SetStateAction } from "react";
 import type { Command } from "@dominion/engine";
 import { CardTip } from "../CardTip.js";
 import { cardLabel } from "../cardUtil.js";
-import type { GameView } from "../types.js";
+import type { GameView, RoomSummary } from "../types.js";
+
+function playerDisplayName(room: RoomSummary, playerId: string): string {
+  const p = room.players.find((x) => x.id === playerId);
+  const n = p?.name?.trim();
+  if (n) return n;
+  return `${playerId.slice(0, 8)}…`;
+}
 
 type Pending = { kind: string; player?: string } | null;
 
 type Props = {
+  room: RoomSummary;
   game: GameView;
   you: string;
   send: (msg: object) => void;
@@ -21,6 +29,7 @@ type Props = {
 };
 
 export function GameScreen({
+  room,
   game,
   you,
   send,
@@ -74,7 +83,9 @@ export function GameScreen({
                 key={pid}
                 className={`opp-card${isTheirTurn ? " is-turn" : ""}`}
               >
-                <div className="opp-card__id">{pid.slice(0, 8)}…</div>
+                <div className="opp-card__id">
+                  {playerDisplayName(room, pid)}
+                </div>
                 <div>
                   hand {st?.handSize ?? 0} · deck {st?.deckSize ?? 0}
                 </div>
@@ -100,7 +111,9 @@ export function GameScreen({
         <div className="game-center">
           <div className="turn-status">
             Turn:{" "}
-            <span className="mono">{activePid?.slice(0, 8)}…</span>
+            <span>
+              {activePid ? playerDisplayName(room, activePid) : "—"}
+            </span>
             {" — "}
             Phase: <strong className="phase">{game.turnPhase}</strong>
             {" — "}
