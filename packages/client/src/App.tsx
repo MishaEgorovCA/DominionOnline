@@ -1,18 +1,11 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { Command } from "@dominion/engine";
 import { AppHeader } from "./components/AppHeader.js";
 import { GameScreen } from "./components/GameScreen.js";
 import { LobbyScreen } from "./components/LobbyScreen.js";
 import { MainMenuScreen } from "./components/MainMenuScreen.js";
 import type { GameView, RoomSummary } from "./types.js";
-
-type WsMsg = {
-  type: string;
-  room?: RoomSummary;
-  gameView?: GameView | null;
-  you?: string;
-  message?: string;
-};
+import { useRoomWebSocket, type WsMsg } from "./useRoomWebSocket.js";
 
 const DISPLAY_NAME_KEY = "dominion_display_name";
 
@@ -34,11 +27,21 @@ export function App() {
   const [err, setErr] = useState<string | null>(null);
   const [selected, setSelected] = useState<number[]>([]);
   const [rawCmd, setRawCmd] = useState("");
-  const wsRef = useRef<WebSocket | null>(null);
 
-  const send = useCallback((obj: object) => {
-    wsRef.current?.send(JSON.stringify(obj));
-  }, []);
+  const { send, status: wsStatus } = useRoomWebSocket(
+    roomId,
+    playerId,
+    name,
+    (msg: WsMsg) => {
+      if (msg.type === "error" && msg.message) setErr(msg.message);
+      if (msg.type === "game") {
+        setErr(null);
+        if (msg.room) setRoom(msg.room as RoomSummary);
+        setGame((msg.gameView ?? null) as GameView | null);
+        if (msg.you) setYou(msg.you);
+      }
+    },
+  );
 
   const sendCmd = useCallback(
     (command: Command) => {
@@ -68,29 +71,6 @@ export function App() {
       /* ignore */
     }
   }, [name]);
-
-  useEffect(() => {
-    if (!roomId || !playerId) return;
-    const proto = window.location.protocol === "https:" ? "wss:" : "ws:";
-    const host = window.location.host;
-    const url = `${proto}//${host}/ws?room=${encodeURIComponent(roomId)}&player=${encodeURIComponent(playerId)}&name=${encodeURIComponent(name)}`;
-    const ws = new WebSocket(url);
-    ws.onmessage = (ev) => {
-      const msg = JSON.parse(String(ev.data)) as WsMsg;
-      if (msg.type === "error" && msg.message) setErr(msg.message);
-      if (msg.type === "game") {
-        setErr(null);
-        if (msg.room) setRoom(msg.room);
-        setGame(msg.gameView ?? null);
-        if (msg.you) setYou(msg.you);
-      }
-    };
-    wsRef.current = ws;
-    return () => {
-      ws.close();
-      wsRef.current = null;
-    };
-  }, [roomId, playerId, name]);
 
   const createRoom = async () => {
     const res = await fetch("/api/rooms", {
@@ -177,6 +157,11 @@ export function App() {
             }
             onLeave={leaveToMenu}
           />
+          {wsStatus === "reconnecting" && (
+            <p className="app-lobby__hint" style={{ padding: "0.5rem 1rem" }}>
+              Reconnecting…
+            </p>
+          )}
           {err && <div className="err">{err}</div>}
           {showLobby && room && you && (
             <LobbyScreen room={room} you={you} send={send} />
