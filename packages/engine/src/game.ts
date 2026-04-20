@@ -67,9 +67,14 @@ export function applyCommand(
   try {
     const s = clone(state);
     if (s.phase !== "playing") return { state, error: "Game not in progress" };
-    const st = s.pending
-      ? handlePending(s, pid, cmd)
-      : applyMain(s, pid, cmd);
+    if (s.pending) {
+      if (cmd.name === "end_turn") {
+        return { state, error: "Resolve the current prompt before ending your turn" };
+      }
+      const st = handlePending(s, pid, cmd);
+      return { state: st };
+    }
+    const st = applyMain(s, pid, cmd);
     return { state: st };
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
@@ -149,7 +154,10 @@ function cmdBuy(s: GameState, pid: PlayerId, card: CardId): GameState {
 
 function cmdEndTurn(s: GameState, pid: PlayerId): GameState {
   assertTurn(s, pid);
-  if (s.turnPhase !== "buy") throw new Error("Finish buy phase (enter buy or play treasures) first");
+  /** Allow ending from action phase (skipped buy) or buy phase — both end in cleanup per ABC. */
+  if (s.turnPhase !== "buy" && s.turnPhase !== "action") {
+    throw new Error("Finish buy phase (enter buy or play treasures) first");
+  }
   return cleanupAndAdvance(s, pid);
 }
 

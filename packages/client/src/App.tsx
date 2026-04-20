@@ -112,7 +112,7 @@ export function App() {
       ws.close();
       wsRef.current = null;
     };
-  }, [roomId, playerId, name]);
+  }, [roomId, playerId]);
 
   const createRoom = async () => {
     const res = await fetch("/api/rooms", { method: "POST" });
@@ -273,7 +273,14 @@ export function App() {
             </div>
           )}
 
-          {game && game.phase === "playing" && (
+          {game && (
+            <div>
+              {game.phase === "game_over" && (
+                <p>
+                  Game over: {game.gameOverReason}
+                </p>
+              )}
+              {game.phase === "playing" && (
             <div>
               <p>
                 Turn: {game.playerOrder[game.whoseTurn]?.slice(0, 8)}… — Phase:{" "}
@@ -430,6 +437,12 @@ export function App() {
                         >
                           Go to buy phase
                         </button>
+                        <button
+                          type="button"
+                          onClick={() => sendCmd({ name: "end_turn" })}
+                        >
+                          End turn (skip buy / cleanup)
+                        </button>
                       </div>
                     </div>
                   )}
@@ -487,11 +500,7 @@ export function App() {
                   )}
                 </div>
               )}
-
-              {game.phase === "game_over" && (
-                <p>
-                  Game over: {game.gameOverReason}
-                </p>
+            </div>
               )}
             </div>
           )}

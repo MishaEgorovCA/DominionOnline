@@ -60,11 +60,21 @@ function roomIdTaken(id: string): boolean {
   return existsSync(roomPath(id));
 }
 
+/** Room codes should not end in "s" (product preference). */
+function finalizeRoomId(id: string): string {
+  if (!id.endsWith("s")) return id;
+  const last =
+    Array.from("abcdefghijklmnopqrstuvwxyz")
+      .filter((c) => c !== "s")
+      .join("") + "0123456789";
+  return id.slice(0, -1) + last[Math.floor(Math.random() * last.length)];
+}
+
 function randomAlphanumericId(): string {
   const chars = "abcdefghijklmnopqrstuvwxyz0123456789";
   let s = "";
   for (let i = 0; i < 6; i++) s += chars[Math.floor(Math.random() * chars.length)];
-  return s;
+  return finalizeRoomId(s);
 }
 
 export function loadRoom(id: string): RoomData | null {
@@ -85,10 +95,10 @@ export function saveRoom(data: RoomData): void {
 }
 
 export function newRoomId(): string {
-  const words = getSixLetterWords();
+  const words = getSixLetterWords().filter((w) => !w.endsWith("s"));
   if (words.length === 0) return randomAlphanumericId();
   for (let attempt = 0; attempt < 50; attempt++) {
-    const id = words[Math.floor(Math.random() * words.length)]!;
+    const id = finalizeRoomId(words[Math.floor(Math.random() * words.length)]!);
     if (!roomIdTaken(id)) return id;
   }
   return randomAlphanumericId();

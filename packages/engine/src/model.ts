@@ -135,10 +135,23 @@ export interface GameState {
   gameEndingPending?: boolean;
 }
 
-export function emptyPileCount(supply: Record<CardId, number>, _kingdom: CardId[]): number {
+/** Base piles always present in a game (not the 16 unchosen kingdom slots). */
+const BASE_SUPPLY_PILES: CardId[] = [
+  "copper",
+  "silver",
+  "gold",
+  "estate",
+  "duchy",
+  "province",
+  "curse",
+];
+
+/** Counts empty piles among this game’s supply only (base + 10 kingdom cards). */
+export function emptyPileCount(supply: Record<CardId, number>, kingdom: CardId[]): number {
+  const piles = new Set<CardId>([...BASE_SUPPLY_PILES, ...kingdom]);
   let n = 0;
-  for (const k of Object.keys(supply) as CardId[]) {
-    if (supply[k] === 0) n++;
+  for (const k of piles) {
+    if ((supply[k] ?? 0) === 0) n++;
   }
   return n;
 }
