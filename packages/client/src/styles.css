@@ -228,15 +228,14 @@ button.room-pill.room-pill--copy[data-masked] {
   letter-spacing: 0.08em;
 }
 
-.room-code-visibility-btn {
+/* Match room pill height (not global 44px touch target) */
+button.room-code-visibility-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  min-height: var(--touch-min);
-  min-width: 2.25rem;
-  padding: 0;
+  min-height: auto;
+  padding: 0.2rem 0.35rem;
+  line-height: 0;
   border-radius: var(--radius);
   border: 1px solid var(--border);
   background: var(--surface);
@@ -250,6 +249,8 @@ button.room-pill.room-pill--copy[data-masked] {
 
 .room-code-visibility-btn__icon {
   display: block;
+  width: 16px;
+  height: 16px;
 }
 
 .app-header__name {
