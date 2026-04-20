@@ -185,6 +185,19 @@ input {
   color: var(--text-muted);
 }
 
+.room-code-block__row {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  max-width: 100%;
+}
+
+.room-code-block__copied {
+  font-size: 0.7rem;
+  color: var(--accent);
+  min-height: 1em;
+}
+
 .room-pill {
   display: inline-block;
   padding: 0.2rem 0.55rem;
@@ -195,20 +208,48 @@ input {
   font-size: 0.85rem;
 }
 
-button.room-pill.room-pill--toggle {
+button.room-pill.room-pill--copy {
   display: inline-block;
   min-height: auto;
   padding: 0.2rem 0.55rem;
   cursor: pointer;
   color: inherit;
+  max-width: min(100%, 280px);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-button.room-pill.room-pill--toggle:hover {
+button.room-pill.room-pill--copy:hover {
   background: var(--surface-hover);
 }
 
-button.room-pill.room-pill--toggle[aria-pressed="false"] {
+button.room-pill.room-pill--copy[data-masked] {
   letter-spacing: 0.08em;
+}
+
+.room-code-visibility-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  min-height: var(--touch-min);
+  min-width: 2.25rem;
+  padding: 0;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+}
+
+.room-code-visibility-btn:hover {
+  background: var(--surface-hover);
+  color: var(--text);
+}
+
+.room-code-visibility-btn__icon {
+  display: block;
 }
 
 .app-header__name {
