@@ -131,6 +131,29 @@ export function App() {
     window.history.replaceState({}, "", `?room=${roomId.trim()}`);
   };
 
+  const leaveToMenu = useCallback(() => {
+    if (room?.started) {
+      if (
+        !window.confirm(
+          "Leave this game and return to the main menu? You can create or join another room.",
+        )
+      ) {
+        return;
+      }
+    }
+    sessionStorage.removeItem("dominion_pid");
+    sessionStorage.removeItem("dominion_room");
+    setRoomId("");
+    setPlayerId(null);
+    setRoom(null);
+    setGame(null);
+    setYou(null);
+    setErr(null);
+    setSelected([]);
+    setRawCmd("");
+    window.history.replaceState({}, "", window.location.pathname);
+  }, [room?.started]);
+
   const activePid = useMemo(() => {
     if (!game) return null;
     return game.playerOrder[game.whoseTurn] ?? null;
@@ -182,6 +205,9 @@ export function App() {
             Room: <strong>{roomId}</strong> — You: {name}{" "}
             <button type="button" onClick={() => send({ type: "setName", name })}>
               Update name
+            </button>
+            <button type="button" onClick={leaveToMenu}>
+              Main menu
             </button>
           </p>
           {err && <div className="err">{err}</div>}
