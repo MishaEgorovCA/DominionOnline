@@ -1,42 +1,10 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { getCard, type Command } from "@dominion/engine";
-import { CardTip } from "./CardTip.js";
-
-type RoomSummary = {
-  roomId: string;
-  hostId: string;
-  players: { id: string; name: string; seat: number | null }[];
-  kingdom: string[] | null;
-  started: boolean;
-};
-
-type GameView = {
-  phase: string;
-  whoseTurn: number;
-  playerOrder: string[];
-  supply: Record<string, number>;
-  trash: string[];
-  kingdom: string[];
-  turnPhase: string;
-  actions: number;
-  buys: number;
-  coins: number;
-  pending: unknown;
-  players: Record<
-    string,
-    {
-      deckSize: number;
-      handSize: number;
-      discardSize: number;
-      discardTop: string | null;
-      inPlay: string[];
-      setAside: string[];
-    }
-  >;
-  yourHand?: string[];
-  gameOverReason?: string;
-  turnsTaken: Record<string, number>;
-};
+import { useCallback, useEffect, useRef, useState } from "react";
+import type { Command } from "@dominion/engine";
+import { AppHeader } from "./components/AppHeader.js";
+import { GameScreen } from "./components/GameScreen.js";
+import { LobbyScreen } from "./components/LobbyScreen.js";
+import { MainMenuScreen } from "./components/MainMenuScreen.js";
+import type { GameView, RoomSummary } from "./types.js";
 
 type WsMsg = {
   type: string;
@@ -45,14 +13,6 @@ type WsMsg = {
   you?: string;
   message?: string;
 };
-
-function cardLabel(id: string): string {
-  try {
-    return getCard(id as never).name;
-  } catch {
-    return id;
-  }
-}
 
 export function App() {
   const [roomId, setRoomId] = useState("");
@@ -112,7 +72,7 @@ export function App() {
       ws.close();
       wsRef.current = null;
     };
-  }, [roomId, playerId]);
+  }, [roomId, playerId, name]);
 
   const createRoom = async () => {
     const res = await fetch("/api/rooms", { method: "POST" });
@@ -155,13 +115,6 @@ export function App() {
     window.history.replaceState({}, "", window.location.pathname);
   }, [room?.started]);
 
-  const activePid = useMemo(() => {
-    if (!game) return null;
-    return game.playerOrder[game.whoseTurn] ?? null;
-  }, [game]);
-
-  const isYourTurn = you && activePid === you;
-
   const toggleSel = (i: number) => {
     setSelected((s) =>
       s.includes(i) ? s.filter((x) => x !== i) : [...s, i].sort((a, b) => a - b),
@@ -170,339 +123,56 @@ export function App() {
 
   const hand = game?.yourHand ?? [];
 
-  const pending = game?.pending as { kind: string; player?: string } | null;
+  const showLobby = Boolean(room && !room.started);
+  const showGame = Boolean(room?.started && game);
+
+  const inRoom = Boolean(roomId && playerId);
 
   return (
-    <div className="layout">
-      <h1>Dominion Online (2nd ed. base)</h1>
-
-      {!roomId || !playerId ? (
-        <div>
-          <div className="row">
-            <button type="button" onClick={createRoom}>
-              Create room
-            </button>
-          </div>
-          <p>Or join:</p>
-          <div className="row">
-            <input
-              value={roomId}
-              onChange={(e) => setRoomId(e.target.value)}
-              placeholder="Room code"
-            />
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Your name"
-            />
-            <button type="button" onClick={joinRoom} disabled={!roomId.trim()}>
-              Join
-            </button>
-          </div>
-        </div>
+    <div className="app-root">
+      {!inRoom ? (
+        <MainMenuScreen
+          roomId={roomId}
+          name={name}
+          onRoomIdChange={setRoomId}
+          onNameChange={setName}
+          onCreateRoom={createRoom}
+          onJoin={joinRoom}
+        />
       ) : (
         <>
-          <p className="row">
-            Room: <strong>{roomId}</strong>
-            <label className="row" style={{ gap: "0.35rem" }}>
-              Display name
-              <input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Your name"
-                aria-label="Display name"
-              />
-            </label>
-            <button type="button" onClick={() => send({ type: "setName", name })}>
-              Update name
-            </button>
-            <button type="button" onClick={leaveToMenu}>
-              Main menu
-            </button>
-          </p>
+          <AppHeader
+            roomId={roomId}
+            name={name}
+            onNameChange={setName}
+            onNameCommit={(committed) =>
+              send({ type: "setName", name: committed })
+            }
+            onLeave={leaveToMenu}
+          />
           {err && <div className="err">{err}</div>}
-
-          {room && !room.started && (
-            <div>
-              <p>Players (pick a seat index, host starts the game):</p>
-              <ul>
-                {room.players.map((p) => (
-                  <li key={p.id}>
-                    {p.name} — seat {p.seat ?? "?"}{" "}
-                    {p.id === you ? (
-                      <span>
-                        {[0, 1, 2, 3, 4, 5].map((s) => (
-                          <button
-                            key={s}
-                            type="button"
-                            onClick={() =>
-                              send({ type: "claimSeat", seatIndex: s })
-                            }
-                          >
-                            {s}
-                          </button>
-                        ))}
-                      </span>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
-              {room.hostId === you && (
-                <button type="button" onClick={() => send({ type: "startGame" })}>
-                  Start game
-                </button>
-              )}
-              <div className="row" style={{ marginTop: "0.5rem" }}>
-                <button
-                  type="button"
-                  onClick={() => send({ type: "randomizeKingdom" })}
-                  disabled={room.hostId !== you}
-                >
-                  Random kingdom
-                </button>
-              </div>
-              <p className="row" style={{ flexWrap: "wrap", alignItems: "baseline" }}>
-                Kingdom:{" "}
-                {(room.kingdom ?? []).map((k, i) => (
-                  <span key={k}>
-                    {i > 0 ? ", " : null}
-                    <CardTip cardId={k}>{cardLabel(k)}</CardTip>
-                  </span>
-                ))}
-              </p>
-            </div>
+          {showLobby && room && you && (
+            <LobbyScreen room={room} you={you} send={send} />
           )}
-
-          {game && (
-            <div>
-              {game.phase === "game_over" && (
-                <p>
-                  Game over: {game.gameOverReason}
-                </p>
-              )}
-              {game.phase === "playing" && (
-            <div>
-              <p>
-                Turn: {game.playerOrder[game.whoseTurn]?.slice(0, 8)}… — Phase:{" "}
-                <strong>{game.turnPhase}</strong> — Actions {game.actions} — Buys{" "}
-                {game.buys} — Coins {game.coins}
-              </p>
-              <div className="supply">
-                {Object.entries(game.supply)
-                  .filter(([, n]) => n > 0)
-                  .map(([id, n]) => (
-                    <div key={id} className="pile">
-                      <CardTip cardId={id}>
-                        {cardLabel(id)} ×{n}
-                      </CardTip>
-                    </div>
-                  ))}
-              </div>
-              <p>Trash: {game.trash.length} cards</p>
-
-              {game.playerOrder.map((pid) => (
-                <div key={pid}>
-                  {pid.slice(0, 8)}… — hand {game.players[pid]?.handSize} — deck{" "}
-                  {game.players[pid]?.deckSize} — in play:{" "}
-                  {(game.players[pid]?.inPlay ?? []).map((cid, i) => (
-                    <span key={`${pid}-ip-${i}`}>
-                      {i > 0 ? ", " : null}
-                      <CardTip cardId={cid}>{cardLabel(cid)}</CardTip>
-                    </span>
-                  ))}
-                </div>
-              ))}
-
-              {pending && (
-                <div className="prompt">
-                  <strong>Prompt: {pending.kind}</strong>
-                  {pending.kind === "moat" && pending.player === you && (
-                    <div className="row">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          sendCmd({ name: "respond_moat", reveal: true })
-                        }
-                      >
-                        Reveal Moat
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() =>
-                          sendCmd({ name: "respond_moat", reveal: false })
-                        }
-                      >
-                        Do not reveal
-                      </button>
-                    </div>
-                  )}
-                  {pending.kind === "militia_discard" &&
-                    pending.player === you && (
-                      <div>
-                        <p>Select cards to discard (down to 3).</p>
-                        <div className="hand">
-                          {hand.map((c, i) => (
-                            <CardTip
-                              key={i}
-                              cardId={c}
-                              as="button"
-                              type="button"
-                              className={
-                                selected.includes(i) ? "card-btn selected" : "card-btn"
-                              }
-                              onClick={() => toggleSel(i)}
-                            >
-                              {cardLabel(c)}
-                            </CardTip>
-                          ))}
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            sendCmd({
-                              name: "militia_discard",
-                              handIndices: selected,
-                            })
-                          }
-                        >
-                          Discard selected
-                        </button>
-                      </div>
-                    )}
-                  <pre style={{ fontSize: "0.7rem", overflow: "auto" }}>
-                    {JSON.stringify(pending, null, 2)}
-                  </pre>
-                  <p>Or send a raw engine command (JSON object with "name" field):</p>
-                  <div className="row">
-                    <input
-                      style={{ flex: 1, minWidth: "200px" }}
-                      value={rawCmd}
-                      onChange={(e) => setRawCmd(e.target.value)}
-                      placeholder='{"name":"cellar_discard","handIndices":[0,1]}'
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        try {
-                          sendCmd(JSON.parse(rawCmd) as Command);
-                          setRawCmd("");
-                        } catch {
-                          setErr("Invalid JSON command");
-                        }
-                      }}
-                    >
-                      Send command
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {isYourTurn && !pending && (
-                <div>
-                  {game.turnPhase === "action" && (
-                    <div>
-                      <p>Your hand:</p>
-                      <div className="hand">
-                        {hand.map((c, i) => (
-                          <button
-                            key={i}
-                            type="button"
-                            className={
-                              selected.includes(i) ? "card-btn selected" : "card-btn"
-                            }
-                            onClick={() => toggleSel(i)}
-                          >
-                            {cardLabel(c)}
-                          </button>
-                        ))}
-                      </div>
-                      <div className="row">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (selected.length !== 1) return;
-                            sendCmd({
-                              name: "play_action",
-                              handIndex: selected[0]!,
-                            });
-                            setSelected([]);
-                          }}
-                          disabled={selected.length !== 1}
-                        >
-                          Play selected action
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => send({ type: "command", command: { name: "enter_buy_phase" } })}
-                        >
-                          Go to buy phase
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => sendCmd({ name: "end_turn" })}
-                        >
-                          End turn (skip buy / cleanup)
-                        </button>
-                      </div>
-                    </div>
-                  )}
-                  {game.turnPhase === "buy" && (
-                    <div>
-                      <div className="row">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (selected.length !== 1) return;
-                            sendCmd({
-                              name: "play_treasure",
-                              handIndex: selected[0]!,
-                            });
-                            setSelected([]);
-                          }}
-                          disabled={selected.length !== 1}
-                        >
-                          Play treasure
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            sendCmd({ name: "play_all_treasures" })
-                          }
-                        >
-                          Play all treasures
-                        </button>
-                      </div>
-                      <p>Click a supply pile name in the list below, then Buy.</p>
-                      <div className="row" style={{ flexWrap: "wrap" }}>
-                        {Object.entries(game.supply)
-                          .filter(([, n]) => n > 0)
-                          .map(([id]) => (
-                            <CardTip
-                              key={id}
-                              cardId={id}
-                              as="button"
-                              type="button"
-                              onClick={() =>
-                                sendCmd({ name: "buy", card: id as never })
-                              }
-                            >
-                              Buy {cardLabel(id)}
-                            </CardTip>
-                          ))}
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => sendCmd({ name: "end_turn" })}
-                      >
-                        End turn (cleanup)
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-              )}
-            </div>
+          {room?.started && !game && (
+            <p className="app-lobby__hint" style={{ padding: "1rem" }}>
+              Loading game…
+            </p>
+          )}
+          {showGame && game && you && (
+            <GameScreen
+              game={game}
+              you={you}
+              send={send}
+              sendCmd={sendCmd}
+              hand={hand}
+              selected={selected}
+              toggleSel={toggleSel}
+              setSelected={setSelected}
+              rawCmd={rawCmd}
+              setRawCmd={setRawCmd}
+              setErr={setErr}
+            />
           )}
         </>
       )}

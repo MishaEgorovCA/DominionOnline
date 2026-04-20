@@ -8,6 +8,7 @@ export type ClientMessage =
   | { type: "claimSeat"; seatIndex: number }
   | { type: "setKingdom"; kingdom: string[] }
   | { type: "randomizeKingdom" }
+  | { type: "shuffleSeats" }
   | { type: "startGame" }
   | { type: "command"; command: EngineCommand };
 

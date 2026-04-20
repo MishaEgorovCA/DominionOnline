@@ -166,6 +166,35 @@ function handleMessage(room: RoomData, playerId: string, msg: Record<string, unk
     return;
   }
 
+  if (type === "shuffleSeats") {
+    if (room.hostId !== playerId || room.started) return;
+    if (room.players.length > 6) {
+      const clients = getRoomClients(room.id);
+      for (const c of clients) {
+        if (c.playerId === playerId) {
+          c.send(
+            JSON.stringify({
+              type: "error",
+              message: "At most 6 players can have seats",
+            }),
+          );
+        }
+      }
+      return;
+    }
+    const arr = room.players;
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    arr.forEach((p, i) => {
+      p.seat = i;
+    });
+    saveRoom(room);
+    broadcastRoom(room);
+    return;
+  }
+
   if (type === "startGame") {
     if (room.hostId !== playerId || room.started || !room.kingdom) return;
     const seated = room.players
