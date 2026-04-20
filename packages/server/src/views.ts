@@ -24,6 +24,8 @@ export type GameView = {
   players: Record<PlayerId, PlayerPublic>;
   /** Your hand — only for viewer */
   yourHand?: string[];
+  /** Your discard pile (ordered) — only for viewer; needed for Harbinger */
+  yourDiscard?: string[];
   gameOverReason?: string;
   turnsTaken: Record<PlayerId, number>;
 };
@@ -60,7 +62,9 @@ export function buildGameView(state: GameState, viewerId: PlayerId | null): Game
     gameOverReason: state.gameOverReason,
   };
   if (viewerId && state.players[viewerId]) {
-    view.yourHand = [...state.players[viewerId].hand];
+    const vp = state.players[viewerId];
+    view.yourHand = [...vp.hand];
+    view.yourDiscard = [...vp.discard];
   }
   return view;
 }

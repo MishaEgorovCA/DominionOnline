@@ -30,6 +30,7 @@ export type GameView = {
     }
   >;
   yourHand?: string[];
+  yourDiscard?: string[];
   gameOverReason?: string;
   turnsTaken: Record<string, number>;
 };

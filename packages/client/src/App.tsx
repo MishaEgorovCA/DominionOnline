@@ -121,6 +121,11 @@ export function App() {
     );
   };
 
+  const pendingKey = game ? JSON.stringify(game.pending) : "";
+  useEffect(() => {
+    setSelected([]);
+  }, [pendingKey]);
+
   const hand = game?.yourHand ?? [];
 
   const showLobby = Boolean(room && !room.started);

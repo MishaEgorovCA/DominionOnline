@@ -5,6 +5,9 @@ export {
   RECOMMENDED_FIRST_GAME,
   getCard,
   formatCardTooltip,
+  isActionCard,
+  isTreasure,
+  isVictory,
 } from "./cards.js";
 export type {
   GameState,

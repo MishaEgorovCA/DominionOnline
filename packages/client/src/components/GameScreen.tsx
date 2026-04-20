@@ -1,8 +1,12 @@
 import type { Dispatch, SetStateAction } from "react";
-import type { Command } from "@dominion/engine";
+import type { Command, PendingPrompt } from "@dominion/engine";
 import { CardTip } from "../CardTip.js";
 import { cardLabel } from "../cardUtil.js";
 import type { GameView, RoomSummary } from "../types.js";
+import {
+  PendingPromptPanel,
+  promptHidesMainHand,
+} from "./PendingPromptPanel.js";
 
 function playerDisplayName(room: RoomSummary, playerId: string): string {
   const p = room.players.find((x) => x.id === playerId);
@@ -10,8 +14,6 @@ function playerDisplayName(room: RoomSummary, playerId: string): string {
   if (n) return n;
   return `${playerId.slice(0, 8)}…`;
 }
-
-type Pending = { kind: string; player?: string } | null;
 
 type Props = {
   room: RoomSummary;
@@ -44,12 +46,11 @@ export function GameScreen({
 }: Props) {
   const activePid = game.playerOrder[game.whoseTurn] ?? null;
   const isYourTurn = activePid === you;
-  const pending = game.pending as Pending;
+  const pending = game.pending as PendingPrompt | null;
 
   const opponents = game.playerOrder.filter((id) => id !== you);
 
-  const militiaYou =
-    pending?.kind === "militia_discard" && pending.player === you;
+  const hideHandForPrompt = promptHidesMainHand(pending, you, hand);
 
   const canSelectHand =
     isYourTurn &&
@@ -135,87 +136,19 @@ export function GameScreen({
           <p className="trash-line">Trash: {game.trash.length} cards</p>
 
           {pending && (
-            <div className="prompt">
-              <strong>Prompt: {pending.kind}</strong>
-              {pending.kind === "moat" && pending.player === you && (
-                <div className="row" style={{ marginTop: "0.5rem" }}>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      sendCmd({ name: "respond_moat", reveal: true })
-                    }
-                  >
-                    Reveal Moat
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      sendCmd({ name: "respond_moat", reveal: false })
-                    }
-                  >
-                    Do not reveal
-                  </button>
-                </div>
-              )}
-              {militiaYou && (
-                <div>
-                  <p>Select cards to discard (down to 3).</p>
-                  <div className="hand">
-                    {hand.map((c, i) => (
-                      <CardTip
-                        key={i}
-                        cardId={c}
-                        as="button"
-                        type="button"
-                        className={
-                          selected.includes(i)
-                            ? "card-btn selected"
-                            : "card-btn"
-                        }
-                        onClick={() => toggleSel(i)}
-                      >
-                        {cardLabel(c)}
-                      </CardTip>
-                    ))}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      sendCmd({
-                        name: "militia_discard",
-                        handIndices: selected,
-                      })
-                    }
-                  >
-                    Discard selected
-                  </button>
-                </div>
-              )}
-              <pre>{JSON.stringify(pending, null, 2)}</pre>
-              <p>Or send a raw engine command (JSON with a &quot;name&quot; field):</p>
-              <div className="row">
-                <input
-                  style={{ flex: 1, minWidth: "200px" }}
-                  value={rawCmd}
-                  onChange={(e) => setRawCmd(e.target.value)}
-                  placeholder='{"name":"cellar_discard","handIndices":[0,1]}'
-                  aria-label="Raw JSON command"
-                />
-                <button
-                  type="button"
-                  onClick={() => {
-                    try {
-                      sendCmd(JSON.parse(rawCmd) as Command);
-                      setRawCmd("");
-                    } catch {
-                      setErr("Invalid JSON command");
-                    }
-                  }}
-                >
-                  Send command
-                </button>
-              </div>
-            </div>
+            <PendingPromptPanel
+              room={room}
+              game={game}
+              you={you}
+              hand={hand}
+              yourDiscard={game.yourDiscard ?? []}
+              selected={selected}
+              toggleSel={toggleSel}
+              sendCmd={sendCmd}
+              rawCmd={rawCmd}
+              setRawCmd={setRawCmd}
+              setErr={setErr}
+            />
           )}
         </div>
       </div>
@@ -238,7 +171,7 @@ export function GameScreen({
           )}
         </div>
 
-        {!militiaYou && (
+        {!hideHandForPrompt && (
           <div className="hand-row">
             <span className="hand-row__label">Hand:</span>
             <div className="hand">
