@@ -202,7 +202,16 @@ export function App() {
       ) : (
         <>
           <p className="row">
-            Room: <strong>{roomId}</strong> — You: {name}{" "}
+            Room: <strong>{roomId}</strong>
+            <label className="row" style={{ gap: "0.35rem" }}>
+              Display name
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Your name"
+                aria-label="Display name"
+              />
+            </label>
             <button type="button" onClick={() => send({ type: "setName", name })}>
               Update name
             </button>
