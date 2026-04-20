@@ -14,9 +14,19 @@ type WsMsg = {
   message?: string;
 };
 
+const DISPLAY_NAME_KEY = "dominion_display_name";
+
 export function App() {
   const [roomId, setRoomId] = useState("");
-  const [name, setName] = useState("Player");
+  const [name, setName] = useState(() => {
+    try {
+      const s = localStorage.getItem(DISPLAY_NAME_KEY);
+      if (s?.trim()) return s.trim();
+    } catch {
+      /* ignore */
+    }
+    return "Player";
+  });
   const [playerId, setPlayerId] = useState<string | null>(null);
   const [room, setRoom] = useState<RoomSummary | null>(null);
   const [game, setGame] = useState<GameView | null>(null);
@@ -52,6 +62,14 @@ export function App() {
   }, []);
 
   useEffect(() => {
+    try {
+      localStorage.setItem(DISPLAY_NAME_KEY, name);
+    } catch {
+      /* ignore */
+    }
+  }, [name]);
+
+  useEffect(() => {
     if (!roomId || !playerId) return;
     const proto = window.location.protocol === "https:" ? "wss:" : "ws:";
     const host = window.location.host;
@@ -75,7 +93,11 @@ export function App() {
   }, [roomId, playerId, name]);
 
   const createRoom = async () => {
-    const res = await fetch("/api/rooms", { method: "POST" });
+    const res = await fetch("/api/rooms", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name: name.trim() || "Player" }),
+    });
     const j = (await res.json()) as { roomId: string; playerId: string };
     sessionStorage.setItem("dominion_pid", j.playerId);
     sessionStorage.setItem("dominion_room", j.roomId);

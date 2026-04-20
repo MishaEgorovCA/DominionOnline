@@ -52,13 +52,16 @@ function summarizeRoom(room: RoomData) {
   };
 }
 
-fastify.post("/api/rooms", async (_req, reply) => {
+fastify.post<{ Body: { name?: string } }>("/api/rooms", async (req, reply) => {
   const id = newRoomId();
   const hostId = crypto.randomUUID();
+  const raw = req.body?.name;
+  const hostName =
+    typeof raw === "string" && raw.trim() !== "" ? raw.trim() : "Player";
   const room: RoomData = {
     id,
     hostId,
-    players: [{ id: hostId, name: "Host", seat: 0 }],
+    players: [{ id: hostId, name: hostName, seat: 0 }],
     kingdom: [...RECOMMENDED_FIRST_GAME],
     started: false,
     game: null,
@@ -78,7 +81,9 @@ fastify.get("/ws", { websocket: true }, (socket, req) => {
   const q = new URL(req.url, "http://x").searchParams;
   const roomId = q.get("room");
   const playerId = q.get("player");
-  const name = q.get("name") ?? "Player";
+  const nameParam = q.get("name");
+  const name =
+    nameParam != null && nameParam.trim() !== "" ? nameParam.trim() : "Player";
   if (!roomId || !playerId) {
     socket.close(4000, "room and player required");
     return;
@@ -89,8 +94,12 @@ fastify.get("/ws", { websocket: true }, (socket, req) => {
     return;
   }
 
-  if (!room.players.some((p) => p.id === playerId)) {
+  const existing = room.players.find((p) => p.id === playerId);
+  if (!existing) {
     room.players.push({ id: playerId, name, seat: null });
+    saveRoom(room);
+  } else if (existing.name !== name) {
+    existing.name = name;
     saveRoom(room);
   }
 
