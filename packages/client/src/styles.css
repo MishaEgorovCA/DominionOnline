@@ -896,23 +896,21 @@ button.room-code-visibility-btn {
   align-items: center;
 }
 
-.playmat__col--treasure {
-  transform: rotate(90deg);
-  transform-origin: center;
+/* Rotate the cards themselves (not the column) to keep layout stable.
+   Bottom edges face inward toward the market. */
+.playmat__col--treasure .playmat-pile__btn,
+.playmat__col--victory .playmat-pile__btn {
+  padding: 0.25rem;
 }
 
-.playmat__col--victory {
+.playmat__col--treasure .card-face {
   transform: rotate(-90deg);
   transform-origin: center;
 }
 
-.playmat__col--treasure > *,
-.playmat__col--victory > * {
-  transform: rotate(-90deg);
-}
-
-.playmat__col--victory > * {
+.playmat__col--victory .card-face {
   transform: rotate(90deg);
+  transform-origin: center;
 }
 
 .playmat-pile {
@@ -927,6 +925,12 @@ button.room-code-visibility-btn {
   border-radius: 6px;
   line-height: 0;
   transition: box-shadow 0.15s;
+}
+
+.playmat-pile__tip.card-tip-wrap {
+  display: inline-block;
+  padding: 0;
+  line-height: 0;
 }
 
 .playmat-pile__btn:disabled {

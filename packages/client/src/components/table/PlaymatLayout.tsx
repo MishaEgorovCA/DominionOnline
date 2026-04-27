@@ -275,16 +275,22 @@ function Pile({
       }`.trim()}
       data-pile-id={id}
     >
-      <button
-        type="button"
-        className="playmat-pile__btn"
-        onClick={() => n > 0 && onBuy(id)}
-        onKeyDown={(e) => onKey(e, id)}
-        disabled={n <= 0}
-        aria-label={`${cardLabel(id)} pile, ${n} left`}
-      >
-        {n > 0 ? <CardFace cardId={id} size="sm" /> : <div className="playmat-pile__gone" />}
-      </button>
+      <CardTip cardId={id} as="span" className="playmat-pile__tip">
+        <button
+          type="button"
+          className="playmat-pile__btn"
+          onClick={() => n > 0 && onBuy(id)}
+          onKeyDown={(e) => onKey(e, id)}
+          disabled={n <= 0}
+          aria-label={`${cardLabel(id)} pile, ${n} left`}
+        >
+          {n > 0 ? (
+            <CardFace cardId={id} size="sm" />
+          ) : (
+            <div className="playmat-pile__gone" />
+          )}
+        </button>
+      </CardTip>
       <div className="playmat-pile__meta">
         <span className="playmat-pile__name">{cardLabel(id)}</span>
         <span className="playmat-pile__n">×{n}</span>
