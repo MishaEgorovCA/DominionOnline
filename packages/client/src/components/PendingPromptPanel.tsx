@@ -16,6 +16,7 @@ import {
   isTreasure,
   isVictory,
 } from "@dominion/engine";
+import { CardFace } from "./CardFace.js";
 import { CardTip } from "../CardTip.js";
 import { cardLabel } from "../cardUtil.js";
 import type { GameView, RoomSummary } from "../types.js";
@@ -90,11 +91,12 @@ function HandSelectGrid({
           as="button"
           type="button"
           className={
-            selected.includes(i) ? "card-btn selected" : "card-btn"
+            (selected.includes(i) ? "card-btn selected" : "card-btn") +
+            " prompt-hand-card"
           }
           onClick={() => onPick(i)}
         >
-          {cardLabel(c)}
+          <CardFace cardId={c} size="sm" />
         </CardTip>
       ))}
     </div>

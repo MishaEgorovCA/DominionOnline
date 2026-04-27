@@ -54,7 +54,7 @@ export function useRoomWebSocket(
     let attempt = 0;
 
     function connect() {
-      if (cancelled) return;
+      if (cancelled || !playerId) return;
       setStatus("connecting");
       const url = buildWsUrl(roomId, playerId, nameRef.current);
       const ws = new WebSocket(url);

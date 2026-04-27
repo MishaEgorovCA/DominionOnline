@@ -1,4 +1,5 @@
 import {
+  type ComponentProps,
   type ReactNode,
   type RefObject,
   useCallback,
@@ -19,6 +20,13 @@ type Props = {
   onClick?: () => void;
   disabled?: boolean;
   type?: "button" | "submit";
+  /** Extra props for the button (e.g. @dnd-kit `...attributes` / `...listeners`). */
+  dndButtonProps?: ComponentProps<"button">;
+  /**
+   * If set, called with the same ref as the inner button (merge with dnd setNodeRef).
+   * For `as="button"` only.
+   */
+  dndSetNodeRef?: (el: HTMLButtonElement | null) => void;
 };
 
 const GAP = 4;
@@ -37,6 +45,8 @@ export function CardTip({
   onClick,
   disabled,
   type = "button",
+  dndButtonProps,
+  dndSetNodeRef,
 }: Props) {
   const text = formatCardTooltip(cardId);
   let cardName: string;
@@ -215,8 +225,12 @@ export function CardTip({
       <>
         <button
           type={type}
-          ref={wrapRef as RefObject<HTMLButtonElement>}
+          ref={(el) => {
+            (wrapRef as RefObject<HTMLButtonElement | null>).current = el;
+            dndSetNodeRef?.(el);
+          }}
           {...commonWrapProps}
+          {...(dndButtonProps ?? {})}
           onClick={onClick}
           disabled={disabled}
         >

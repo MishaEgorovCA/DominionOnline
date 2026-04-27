@@ -743,3 +743,393 @@ button.room-code-visibility-btn {
   clip: rect(0, 0, 0, 0);
   border: 0;
 }
+
+/* ----- Card art & playmat (tabletop UI) ----- */
+
+.card-face {
+  display: block;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #2c3344;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+}
+
+.card-face__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  vertical-align: top;
+}
+
+.card-face__fallback {
+  min-height: 4.5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  padding: 0.2rem 0.35rem;
+  text-align: center;
+  line-height: 1.2;
+  color: var(--text);
+}
+
+.card-face--xs {
+  width: 40px;
+  max-width: 12vw;
+  aspect-ratio: 2.5 / 3.5;
+}
+.card-face--sm {
+  width: 64px;
+  max-width: 20vw;
+  aspect-ratio: 2.5 / 3.5;
+}
+.card-face--md {
+  width: 88px;
+  max-width: 26vw;
+  aspect-ratio: 2.5 / 3.5;
+}
+.card-face--lg {
+  width: 112px;
+  max-width: 32vw;
+  aspect-ratio: 2.5 / 3.5;
+}
+
+.playmat-app {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.playmat__scroll {
+  flex: 1;
+  overflow: auto;
+  min-height: 0;
+  padding: 0.5rem 0.75rem 0.25rem;
+}
+
+.playmat {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.playmat-opp {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  padding: 0.4rem 0.5rem;
+  margin-bottom: 0.35rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 0.8rem;
+}
+
+.playmat-opp.is-turn {
+  border-color: var(--accent);
+}
+
+.playmat-opp__inplay {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem;
+  align-items: flex-end;
+}
+
+.playmat-opp__empty {
+  color: var(--text-muted);
+}
+
+.playmat-opp__card {
+  flex: 0 0 auto;
+}
+
+.playmat-opp__tip.card-tip-wrap {
+  display: inline-block;
+  padding: 0;
+  line-height: 0;
+}
+
+.playmat__grid {
+  display: grid;
+  grid-template-columns: minmax(100px, 1fr) minmax(200px, 2.2fr) minmax(100px, 1fr);
+  gap: 0.5rem 0.6rem;
+  margin: 0.5rem 0 0.25rem;
+  align-items: start;
+}
+
+@media (max-width: 800px) {
+  .playmat__grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.playmat__coltitle {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin: 0 0 0.35rem;
+}
+
+.playmat__kingdom {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  justify-content: center;
+}
+
+.playmat-pile {
+  text-align: center;
+}
+
+.playmat-pile--sm .card-face--sm {
+  width: 58px;
+}
+
+.playmat-pile__btn {
+  padding: 0.15rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-radius: 6px;
+  line-height: 0;
+  transition: box-shadow 0.15s;
+}
+
+.playmat-pile__btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.playmat-pile__btn:hover:not(:disabled) {
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.playmat-pile--empty .playmat-pile__btn {
+  opacity: 0.4;
+}
+
+.playmat-pile__gone {
+  width: 88px;
+  max-width: 100%;
+  aspect-ratio: 2.5 / 3.5;
+  background: #2a2f3a;
+  border-radius: 6px;
+  border: 1px dashed var(--border);
+  margin: 0 auto;
+}
+
+.playmat-pile__meta {
+  font-size: 0.72rem;
+  margin-top: 0.2rem;
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.drop-zone {
+  position: relative;
+  border-radius: var(--radius);
+  transition: background 0.15s, box-shadow 0.15s;
+}
+
+.drop-zone--over {
+  background: rgba(96, 165, 250, 0.08);
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+.playmat__drop-hint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin: 0 0 0.35rem;
+}
+
+.playmat__inplay {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  min-height: 3.2rem;
+  align-items: flex-end;
+  padding: 0.25rem 0.35rem;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+}
+
+.playmat__self {
+  margin-top: 0.5rem;
+  padding: 0.5rem 0.25rem 0.75rem;
+  border-top: 1px solid var(--border);
+}
+
+.playmat__youlbl {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0 0 0.45rem;
+}
+
+.playmat__handrow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.35rem;
+  margin: 0.5rem 0 0.75rem;
+}
+
+.playmat__piles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+  align-items: flex-end;
+}
+
+.playmat__stack {
+  min-height: 4.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.playmat__back {
+  box-shadow: 0 1px 0 #1a1e28, 0 2px 0 #0f1218, 0 3px 0 #0a0c10, 0 4px 6px rgba(0,0,0,0.4);
+}
+
+.playmat__emptystack {
+  min-width: 2.2rem;
+  min-height: 3.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  border: 1px dashed var(--border);
+  border-radius: 6px;
+}
+
+.playmat__pile-lbl {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+}
+
+.playmat__controls.game-player-bar {
+  flex: 0 0 auto;
+}
+
+/* Fanned hand */
+.hand-fan {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0;
+  min-height: 5.2rem;
+  padding: 0.35rem 0.4rem 0.15rem;
+  flex: 1;
+  max-width: 100%;
+  overflow: visible;
+}
+
+.hand-fan__wrap {
+  position: relative;
+  margin: 0 -0.2rem;
+  transform-origin: 50% 100%;
+  transition: transform 0.15s ease, z-index 0.15s;
+  z-index: 1;
+}
+
+.hand-fan__wrap .card-tip-wrap {
+  display: block;
+  padding: 0;
+  line-height: 0;
+}
+
+.hand-fan__inner {
+  line-height: 0;
+  border-radius: 6px;
+}
+
+.hand-fan__wrap .card-btn,
+.hand-fan__wrap.is-selected button {
+  outline: none;
+}
+
+.hand-fan__wrap.is-selected {
+  z-index: 10;
+  transform: scale(1.04);
+}
+
+.hand-fan__wrap.is-selected::after,
+.hand-fan__wrap:has(button:focus-visible)::after {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 8px;
+  box-shadow: 0 0 0 2px var(--accent);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.hand-fan__wrap:hover,
+.hand-fan__wrap:has(.card-tip-wrap:hover) {
+  z-index: 8;
+  transform: scale(1.05) translateY(-4px);
+}
+
+.hand-fan--1 .hand-fan__wrap { transform: none; }
+
+.hand-fan--2 .hand-fan__wrap:nth-child(1) { transform: rotate(-4deg); }
+.hand-fan--2 .hand-fan__wrap:nth-child(2) { transform: rotate(4deg); }
+.hand-fan--2 .hand-fan__wrap:hover { transform: scale(1.05) translateY(-4px) rotate(0.001deg); }
+
+.hand-fan--3 .hand-fan__wrap:nth-child(1) { transform: rotate(-6deg); }
+.hand-fan--3 .hand-fan__wrap:nth-child(2) { transform: translateY(2px); }
+.hand-fan--3 .hand-fan__wrap:nth-child(3) { transform: rotate(6deg); }
+
+.hand-fan--4 .hand-fan__wrap:nth-child(1) { transform: rotate(-7deg); }
+.hand-fan--4 .hand-fan__wrap:nth-child(2) { transform: rotate(-2deg) translateY(1px); }
+.hand-fan--4 .hand-fan__wrap:nth-child(3) { transform: rotate(2deg) translateY(1px); }
+.hand-fan--4 .hand-fan__wrap:nth-child(4) { transform: rotate(7deg); }
+
+.hand-fan--5 .hand-fan__wrap:nth-child(1) { transform: rotate(-8deg); }
+.hand-fan--5 .hand-fan__wrap:nth-child(2) { transform: rotate(-3deg) translateY(1px); }
+.hand-fan--5 .hand-fan__wrap:nth-child(3) { transform: translateY(2px); }
+.hand-fan--5 .hand-fan__wrap:nth-child(4) { transform: rotate(3deg) translateY(1px); }
+.hand-fan--5 .hand-fan__wrap:nth-child(5) { transform: rotate(8deg); }
+
+.hand-fan--6 .hand-fan__wrap:nth-child(1) { transform: rotate(-8deg); }
+.hand-fan--6 .hand-fan__wrap:nth-child(2) { transform: rotate(-3deg) translateY(0); }
+.hand-fan--6 .hand-fan__wrap:nth-child(3) { transform: rotate(1deg) translateY(1px); }
+.hand-fan--6 .hand-fan__wrap:nth-child(4) { transform: rotate(3deg) translateY(1px); }
+.hand-fan--6 .hand-fan__wrap:nth-child(5) { transform: rotate(5deg) translateY(0); }
+.hand-fan--6 .hand-fan__wrap:nth-child(6) { transform: rotate(8deg); }
+
+/* 7+ : gentle arc */
+.hand-fan--7 .hand-fan__wrap,
+.hand-fan--8 .hand-fan__wrap,
+.hand-fan--9 .hand-fan__wrap,
+.hand-fan--10 .hand-fan__wrap,
+.hand-fan--11 .hand-fan__wrap,
+.hand-fan--12 .hand-fan__wrap,
+.hand-fan--13 .hand-fan__wrap,
+.hand-fan--14 .hand-fan__wrap,
+.hand-fan--15 .hand-fan__wrap,
+.hand-fan--16 .hand-fan__wrap,
+.hand-fan--17 .hand-fan__wrap,
+.hand-fan--18 .hand-fan__wrap,
+.hand-fan--19 .hand-fan__wrap,
+.hand-fan--20 .hand-fan__wrap {
+  margin: 0 -0.18rem;
+}
+
+.is-dragging {
+  opacity: 0.6;
+}
+
+.prompt-hand-card {
+  min-width: 0;
+  padding: 0.1rem 0.15rem;
+  line-height: 0;
+}
