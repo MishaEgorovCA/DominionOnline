@@ -865,6 +865,12 @@ button.room-code-visibility-btn {
   }
 }
 
+.playmat__col--kingdom {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
 .playmat__coltitle {
   font-size: 0.7rem;
   text-transform: uppercase;
@@ -874,18 +880,43 @@ button.room-code-visibility-btn {
 }
 
 .playmat__kingdom {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-auto-rows: auto;
   gap: 0.4rem;
   justify-content: center;
+  align-content: start;
+  max-width: calc(5 * 110px);
+}
+
+.playmat__col--treasure,
+.playmat__col--victory {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.playmat__col--treasure {
+  transform: rotate(90deg);
+  transform-origin: center;
+}
+
+.playmat__col--victory {
+  transform: rotate(-90deg);
+  transform-origin: center;
+}
+
+.playmat__col--treasure > *,
+.playmat__col--victory > * {
+  transform: rotate(-90deg);
+}
+
+.playmat__col--victory > * {
+  transform: rotate(90deg);
 }
 
 .playmat-pile {
   text-align: center;
-}
-
-.playmat-pile--sm .card-face--sm {
-  width: 58px;
 }
 
 .playmat-pile__btn {
@@ -912,7 +943,7 @@ button.room-code-visibility-btn {
 }
 
 .playmat-pile__gone {
-  width: 88px;
+  width: 64px;
   max-width: 100%;
   aspect-ratio: 2.5 / 3.5;
   background: #2a2f3a;

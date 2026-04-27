@@ -283,7 +283,7 @@ function Pile({
         disabled={n <= 0}
         aria-label={`${cardLabel(id)} pile, ${n} left`}
       >
-        {n > 0 ? <CardFace cardId={id} size={compact ? "sm" : "md"} /> : <div className="playmat-pile__gone" />}
+        {n > 0 ? <CardFace cardId={id} size="sm" /> : <div className="playmat-pile__gone" />}
       </button>
       <div className="playmat-pile__meta">
         <span className="playmat-pile__name">{cardLabel(id)}</span>
