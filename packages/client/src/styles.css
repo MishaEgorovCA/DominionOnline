@@ -1164,3 +1164,11 @@ button.room-code-visibility-btn {
   padding: 0.1rem 0.15rem;
   line-height: 0;
 }
+
+.playmat-hint {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  padding: 0.25rem 0.35rem;
+  border: 1px dashed var(--border);
+  border-radius: var(--radius);
+}

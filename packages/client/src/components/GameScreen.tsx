@@ -14,7 +14,6 @@ import {
   useSensors,
 } from "@dnd-kit/core";
 import type { Command, PendingPrompt } from "@dominion/engine";
-import { cardLabel } from "../cardUtil.js";
 import { useViewDiffFlight } from "../hooks/useViewDiffFlight.js";
 import type { GameView, RoomSummary } from "../types.js";
 import { CardFlightLayer } from "./CardFlightLayer.js";
@@ -280,21 +279,10 @@ export function GameScreen({
                   >
                     Play all treasures
                   </button>
-                  <div
-                    className="row"
-                    style={{ width: "100%", marginTop: "0.35rem" }}
-                  >
-                    {Object.entries(game.supply)
-                      .filter(([, n]) => n > 0)
-                      .map(([id]) => (
-                        <button
-                          key={id}
-                          type="button"
-                          onClick={() => sendCmd({ name: "buy", card: id as never })}
-                        >
-                          Buy {cardLabel(id)}
-                        </button>
-                      ))}
+                  <div className="playmat-hint" style={{ width: "100%" }}>
+                    Tip: during buy phase, click a pile in the market to buy it.
+                    (You can also drag treasures from your hand into the treasure
+                    area.)
                   </div>
                   <button
                     type="button"
