@@ -1,0 +1,3 @@
+[submodule "vendor/splendor"]
+	path = vendor/splendor
+	url = https://github.com/hexanome-04/splendor.git

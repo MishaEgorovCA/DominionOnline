@@ -1,3 +1,11 @@
+export {
+  createRoomStore,
+  finalizeRoomId,
+  getDataDir,
+  resolveWordsPath,
+  type RoomStore,
+} from "./rooms.js";
+
 /** Wire protocol + view types shared by client and server */
 
 export type PlayerId = string;

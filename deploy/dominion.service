@@ -11,6 +11,7 @@ Environment=PORT=3333
 Environment=DATA_DIR=/var/lib/dominion-online
 Environment=SITE_DIST=/opt/dominion-online/packages/site/dist
 Environment=DOMINION_DIST=/opt/dominion-online/packages/client/dist
+Environment=SPLENDOR_DIST=/opt/dominion-online/packages/splendor-client/dist
 ExecStart=/usr/bin/node dist/index.js
 Restart=on-failure
 
