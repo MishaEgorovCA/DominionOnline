@@ -1,9 +1,10 @@
-import type { SplendorGameState } from "@splendor/engine";
+import type { SplendorGameState, SplendorGameVersion } from "@splendor/engine";
 import { createRoomStore } from "@dominion/shared";
 
 export type SplendorRoomData = {
   id: string;
   hostId: string;
+  gameVersion: SplendorGameVersion;
   players: {
     id: string;
     name: string;

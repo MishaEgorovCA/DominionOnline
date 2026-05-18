@@ -1,6 +1,12 @@
+export type SplendorGameVersion =
+  | "BASE_ORIENT"
+  | "BASE_ORIENT_CITIES"
+  | "BASE_ORIENT_TRADE_ROUTES";
+
 export type RoomSummary = {
   roomId: string;
   hostId: string;
+  gameVersion?: SplendorGameVersion;
   players: {
     id: string;
     name: string;
@@ -10,12 +16,27 @@ export type RoomSummary = {
   started: boolean;
 };
 
+export type DeckView = {
+  visibleCards: CardView[];
+  canDraw: boolean;
+};
+
 export type GameView = {
+  gameVersion?: SplendorGameVersion;
   currentPlayer: string | null;
   curValidActions: string[];
   gameOver: boolean;
   winners: string[];
+  prestigePointsToWin?: number;
   tokens: Record<string, number>;
+  tier1Deck?: DeckView;
+  tier2Deck?: DeckView;
+  tier3Deck?: DeckView;
+  tier1OrientDeck?: DeckView;
+  tier2OrientDeck?: DeckView;
+  tier3OrientDeck?: DeckView;
+  nobleDeck?: DeckView;
+  cityDeck?: DeckView;
   tier1: CardView[];
   tier2: CardView[];
   tier3: CardView[];
@@ -34,6 +55,8 @@ export type CardView = {
   costType?: string;
   tokenCost?: Record<string, number>;
   kind?: string;
+  numSameBonuses?: number;
+  hidden?: true;
 };
 
 export type PlayerView = {
@@ -43,5 +66,11 @@ export type PlayerView = {
   tokens: Record<string, number>;
   bonuses: Record<string, number>;
   devCards: CardView[];
+  nobleCards?: CardView[];
   reservedCards: (CardView | { id: string; hidden: true })[];
+  reservedNobles?: (CardView | { id: string; hidden: true })[];
+  cities?: CardView[];
+  citiesQualifiedFor?: CardView[];
+  coatsOfArmsUnplaced?: number;
+  powers?: Record<string, boolean | number>;
 };

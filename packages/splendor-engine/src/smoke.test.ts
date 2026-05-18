@@ -25,4 +25,23 @@ describe("splendor engine smoke", () => {
     expect(res.state.players[0]!.tokens.White).toBe(1);
     expect(res.state.turnCounter).toBe(1);
   });
+
+  it("creates a cities game with city deck", () => {
+    const g = createSplendorGame({
+      playerNames: ["A", "B"],
+      version: "BASE_ORIENT_CITIES",
+    });
+    expect(g.gameVersion).toBe("BASE_ORIENT_CITIES");
+    expect(g.citiesDeck?.visible).toHaveLength(3);
+    expect(g.prestigePointsToWin).toBe(-1);
+  });
+
+  it("creates a trade routes game", () => {
+    const g = createSplendorGame({
+      playerNames: ["A", "B"],
+      version: "BASE_ORIENT_TRADE_ROUTES",
+    });
+    expect(g.players[0]!.coatsOfArmsUnplaced).toBe(5);
+    expect(g.players[0]!.powers).toBeDefined();
+  });
 });

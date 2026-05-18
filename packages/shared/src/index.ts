@@ -6,6 +6,8 @@ export {
   type RoomStore,
 } from "./rooms.js";
 
+export { getDisplayName, setDisplayName } from "./displayName.js";
+
 /** Wire protocol + view types shared by client and server */
 
 export type PlayerId = string;

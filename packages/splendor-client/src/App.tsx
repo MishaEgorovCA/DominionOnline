@@ -3,10 +3,9 @@ import { AppHeader } from "./components/AppHeader.js";
 import { GameScreen } from "./components/GameScreen.js";
 import { LobbyScreen } from "./components/LobbyScreen.js";
 import { MainMenuScreen } from "./components/MainMenuScreen.js";
+import { getDisplayName, setDisplayName } from "@dominion/shared/displayName";
 import type { GameView, RoomSummary } from "./types.js";
 import { useRoomWebSocket } from "./useRoomWebSocket.js";
-
-const DISPLAY_NAME_KEY = "splendor_display_name";
 const GAME_BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 function gameRoomUrl(roomId: string): string {
@@ -15,15 +14,7 @@ function gameRoomUrl(roomId: string): string {
 
 export function App() {
   const [roomId, setRoomId] = useState("");
-  const [name, setName] = useState(() => {
-    try {
-      const s = localStorage.getItem(DISPLAY_NAME_KEY);
-      if (s?.trim()) return s.trim();
-    } catch {
-      /* ignore */
-    }
-    return "Player";
-  });
+  const [name, setName] = useState(getDisplayName);
   const [playerId, setPlayerId] = useState<string | null>(null);
   const [room, setRoom] = useState<RoomSummary | null>(null);
   const [game, setGame] = useState<GameView | null>(null);
@@ -62,11 +53,7 @@ export function App() {
   }, []);
 
   useEffect(() => {
-    try {
-      localStorage.setItem(DISPLAY_NAME_KEY, name);
-    } catch {
-      /* ignore */
-    }
+    setDisplayName(name);
   }, [name]);
 
   const createRoom = async () => {

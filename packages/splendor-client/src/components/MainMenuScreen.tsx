@@ -24,7 +24,7 @@ export function MainMenuScreen({
       </div>
       <div className="menu">
         <h1>Splendor Online</h1>
-        <p className="sub">Base game + Orient expansion</p>
+        <p className="sub">Choose expansion in the lobby after creating a room</p>
         <button type="button" className="primary" onClick={onCreateRoom}>
           Create room
         </button>

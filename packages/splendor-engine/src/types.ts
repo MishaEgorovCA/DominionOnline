@@ -16,6 +16,11 @@ export type CardTier = 1 | 2 | 3;
 
 export type CascadeType = "None" | "Tier1" | "Tier2";
 
+export type SplendorGameVersion =
+  | "BASE_ORIENT"
+  | "BASE_ORIENT_CITIES"
+  | "BASE_ORIENT_TRADE_ROUTES";
+
 export type ActionId =
   | "BUY_CARD"
   | "TAKE_TOKEN"
@@ -24,7 +29,9 @@ export type ActionId =
   | "CASCADE_1"
   | "CASCADE_2"
   | "RESERVE_NOBLE"
-  | "CHOOSE_SATCHEL_TOKEN";
+  | "CHOOSE_SATCHEL_TOKEN"
+  | "CHOOSE_CITY"
+  | "TAKE_EXTRA_TOKEN_AFTER_PURCHASE_POWER";
 
 export type ActionResultCode =
   | "VALID_ACTION"
@@ -40,7 +47,9 @@ export type ActionResultCode =
   | "MUST_CHOOSE_CASCADE_CARD_TIER_1"
   | "MUST_CHOOSE_CASCADE_CARD_TIER_2"
   | "MUST_RESERVE_NOBLE"
-  | "MUST_CHOOSE_TOKEN_TYPE";
+  | "MUST_CHOOSE_TOKEN_TYPE"
+  | "MUST_CHOOSE_CITY"
+  | "MUST_TAKE_EXTRA_TOKEN_AFTER_PURCHASE";
 
 export type TokenMap = Partial<Record<TokenType, number>>;
 
@@ -65,7 +74,22 @@ export type DevelopmentCard = BaseCard & {
 
 export type NobleCard = BaseCard & { kind: "noble" };
 
-export type Card = DevelopmentCard | NobleCard;
+export type CityCard = BaseCard & {
+  kind: "city";
+  numSameBonuses: number;
+};
+
+export type Card = DevelopmentCard | NobleCard | CityCard;
+
+export type TradingPowersState = {
+  extraTokenAfterPurchase: boolean;
+  extraTokenAfterTakingSameColor: boolean;
+  goldTokenWorthTwoTokens: boolean;
+  addFivePrestigePoints: boolean;
+  addPrestigePointsWithCoatsOfArms: boolean;
+  addFivePrestigePointsUsed: boolean;
+  coatsPrestigeAdded: number;
+};
 
 export type PlayerState = {
   name: string;
@@ -77,6 +101,12 @@ export type PlayerState = {
   nobleCards: NobleCard[];
   reservedCards: DevelopmentCard[];
   reservedNobles: NobleCard[];
+  /** Cities expansion */
+  cities?: CityCard[];
+  citiesQualifiedFor?: CityCard[];
+  /** Trade Routes expansion */
+  coatsOfArmsUnplaced?: number;
+  powers?: TradingPowersState;
 };
 
 export type DeckState<T extends Card = Card> = {
@@ -85,7 +115,7 @@ export type DeckState<T extends Card = Card> = {
 };
 
 export type SplendorGameState = {
-  gameVersion: "BASE_ORIENT";
+  gameVersion: SplendorGameVersion;
   prestigePointsToWin: number;
   turnCounter: number;
   curValidActions: ActionId[];
@@ -97,6 +127,7 @@ export type SplendorGameState = {
   tier2Orient: DeckState<DevelopmentCard>;
   tier3Orient: DeckState<DevelopmentCard>;
   nobles: DeckState<NobleCard>;
+  citiesDeck?: DeckState<CityCard>;
   tokens: Record<TokenType, number>;
   playersWhoCanWin: string[];
   winners: string[];
@@ -119,4 +150,10 @@ export type SplendorAction =
       action: "CHOOSE_SATCHEL_TOKEN";
       cardId: string;
       selected: TokenType;
+    }
+  | { action: "CHOOSE_CITY"; cityId: string }
+  | {
+      action: "TAKE_EXTRA_TOKEN_AFTER_PURCHASE_POWER";
+      takeToken?: TokenType;
+      putBackToken?: TokenType;
     };

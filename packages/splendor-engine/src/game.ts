@@ -18,27 +18,34 @@ import {
   removeTokens,
   tokenCount,
 } from "./player.js";
+import { checkForWinCities, initCitiesBoard, qualifiesCities } from "./cities.js";
+import { createTradingPostsPlayer } from "./tradingPosts.js";
 import type {
   ActionId,
   ActionResultCode,
   Card,
+  CityCard,
   DevelopmentCard,
   NobleCard,
   PlayerState,
   SplendorGameState,
+  SplendorGameVersion,
   TokenMap,
   TokenType,
 } from "./types.js";
 import { TOKEN_TYPES } from "./types.js";
 
 export function createOrientGame(
+  version: SplendorGameVersion = "BASE_ORIENT",
   prestigePointsToWin = 15,
   turnCounter = 0,
 ): SplendorGameState {
   const loaded = loadCardsFromCsv();
+  const winPoints =
+    version === "BASE_ORIENT_CITIES" ? -1 : prestigePointsToWin;
   return {
-    gameVersion: "BASE_ORIENT",
-    prestigePointsToWin,
+    gameVersion: version,
+    prestigePointsToWin: winPoints,
     turnCounter,
     curValidActions: ["BUY_CARD", "TAKE_TOKEN", "RESERVE_CARD"],
     players: [],
@@ -83,19 +90,31 @@ export function initBoard(state: SplendorGameState): void {
   }
   state.tokens.Satchel = 0;
   state.tokens.Gold = 5;
+  if (state.gameVersion === "BASE_ORIENT_CITIES") {
+    initCitiesBoard(state);
+  }
 }
 
 export function launchNewGame(
   playerNames: string[],
   colours?: string[],
+  version: SplendorGameVersion = "BASE_ORIENT",
 ): SplendorGameState {
   if (playerNames.length < 2 || playerNames.length > 4) {
     throw new Error("2-4 players required");
   }
-  const game = createOrientGame(15, 0);
-  game.players = playerNames.map((name, i) =>
-    createPlayer(name, colours?.[i] ?? ""),
-  );
+  const game = createOrientGame(version, 15, 0);
+  game.players = playerNames.map((name, i) => {
+    if (version === "BASE_ORIENT_TRADE_ROUTES") {
+      return createTradingPostsPlayer(name, colours?.[i] ?? "");
+    }
+    const p = createPlayer(name, colours?.[i] ?? "");
+    if (version === "BASE_ORIENT_CITIES") {
+      p.cities = [];
+      p.citiesQualifiedFor = [];
+    }
+    return p;
+  });
   if (!colours?.length) assignColours(game.players);
   initBoard(game);
   return game;
@@ -116,6 +135,10 @@ export function getCardFromId(
   state: SplendorGameState,
   id: string,
 ): Card | undefined {
+  if (state.citiesDeck) {
+    const city = state.citiesDeck.visible.find((c) => c.id === id);
+    if (city) return city;
+  }
   for (const d of [
     state.tier1,
     state.tier2,
@@ -135,6 +158,9 @@ export function takeCardFromBoard(
   state: SplendorGameState,
   card: Card,
 ): Card | null {
+  if (card.kind === "city" && state.citiesDeck) {
+    return takeVisibleCard(state.citiesDeck, card as CityCard, false);
+  }
   if (card.kind === "noble") {
     return takeVisibleCard(state.nobles, card, false);
   }
@@ -220,10 +246,16 @@ export function removeValidAction(state: SplendorGameState, a: ActionId): void {
 }
 
 export function canPlayerWin(state: SplendorGameState, player: PlayerState): boolean {
+  if (state.gameVersion === "BASE_ORIENT_CITIES") {
+    return qualifiesCities(state, player).length > 0;
+  }
   return player.prestigePoints >= state.prestigePointsToWin;
 }
 
 export function checkForWin(state: SplendorGameState): string[] | null {
+  if (state.gameVersion === "BASE_ORIENT_CITIES") {
+    return checkForWinCities(state);
+  }
   if (
     state.playersWhoCanWin.length > 0 &&
     state.turnCounter !== 0 &&

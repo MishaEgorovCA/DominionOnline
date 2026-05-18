@@ -1,5 +1,9 @@
 import type { FastifyInstance } from "fastify";
-import { applySplendorAction, createSplendorGame } from "@splendor/engine";
+import {
+  applySplendorAction,
+  createSplendorGame,
+  type SplendorGameVersion,
+} from "@splendor/engine";
 import {
   loadSplendorRoom,
   saveSplendorRoom,
@@ -16,10 +20,17 @@ function getRoomClients(roomId: string): Set<Client> {
   return roomClients.get(roomId)!;
 }
 
+const GAME_VERSIONS: SplendorGameVersion[] = [
+  "BASE_ORIENT",
+  "BASE_ORIENT_CITIES",
+  "BASE_ORIENT_TRADE_ROUTES",
+];
+
 function summarizeRoom(room: SplendorRoomData) {
   return {
     roomId: room.id,
     hostId: room.hostId,
+    gameVersion: room.gameVersion ?? "BASE_ORIENT",
     players: room.players.map((p) => ({
       id: p.id,
       name: p.name,
@@ -81,6 +92,18 @@ function handleMessage(
     return;
   }
 
+  if (type === "setGameVersion" && typeof msg.version === "string") {
+    if (room.hostId !== playerId || room.started) return;
+    if (!GAME_VERSIONS.includes(msg.version as SplendorGameVersion)) {
+      sendError(room, playerId, "Invalid game version");
+      return;
+    }
+    room.gameVersion = msg.version as SplendorGameVersion;
+    saveSplendorRoom(room);
+    broadcastRoom(room);
+    return;
+  }
+
   if (type === "startGame") {
     if (room.hostId !== playerId || room.started) return;
     const seated = room.players
@@ -92,7 +115,12 @@ function handleMessage(
     }
     const names = seated.map((p) => p.name);
     const colours = seated.map((p) => p.colour ?? "3498db");
-    room.game = createSplendorGame({ playerNames: names, colours });
+    const version = room.gameVersion ?? "BASE_ORIENT";
+    room.game = createSplendorGame({
+      playerNames: names,
+      colours,
+      version,
+    });
     room.started = true;
     saveSplendorRoom(room);
     broadcastRoom(room);
@@ -147,6 +175,7 @@ export async function registerSplendorRoutes(
       const room: SplendorRoomData = {
         id,
         hostId,
+        gameVersion: "BASE_ORIENT",
         players: [{ id: hostId, name: hostName, seat: 0 }],
         started: false,
         game: null,

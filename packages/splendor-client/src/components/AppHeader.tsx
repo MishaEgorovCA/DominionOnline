@@ -1,3 +1,4 @@
+import { RoomCodeBlock } from "@dominion/ui";
 import { EditablePlayerName } from "./EditablePlayerName.js";
 
 type Props = {
@@ -16,20 +17,33 @@ export function AppHeader({
   onLeave,
 }: Props) {
   return (
-    <header className="header">
-      <div className="header__left">
-        <span className="room-code">Room: {roomId}</span>
-        <EditablePlayerName
-          name={name}
-          onNameChange={(n) => {
-            onNameChange(n);
-            onNameCommit(n);
-          }}
-        />
+    <header className="app-header">
+      <div className="app-header__left">
+        <span className="app-header__brand">Splendor Online</span>
       </div>
-      <button type="button" className="leave-btn" onClick={onLeave}>
-        Leave
-      </button>
+      <div className="app-header__center">
+        <RoomCodeBlock roomId={roomId} />
+      </div>
+      <div className="app-header__right">
+        <div className="app-header__name">
+          <EditablePlayerName
+            name={name}
+            onNameChange={onNameChange}
+            onCommit={onNameCommit}
+          />
+        </div>
+        <button
+          type="button"
+          className="btn-exit"
+          onClick={onLeave}
+          title="Return to main menu"
+        >
+          <span className="btn-exit__icon" aria-hidden>
+            ⎋
+          </span>
+          Main menu
+        </button>
+      </div>
     </header>
   );
 }

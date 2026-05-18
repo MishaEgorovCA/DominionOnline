@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import type {
+  Card,
   CardTier,
   CascadeType,
   CostType,
@@ -159,6 +160,6 @@ export function loadCardsFromCsv(csvPath?: string): {
   return { tier1, tier2, tier3, tier1Orient, tier2Orient, tier3Orient, nobles };
 }
 
-export function cloneCard<T extends DevelopmentCard | NobleCard>(c: T): T {
+export function cloneCard<T extends Card>(c: T): T {
   return structuredClone(c);
 }

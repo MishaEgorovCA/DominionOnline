@@ -113,6 +113,35 @@ input {
   color: var(--muted);
 }
 
+.expansion-picker {
+  margin: 1rem 0;
+  text-align: center;
+}
+
+.expansion-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-start;
+  max-width: 320px;
+  margin: 0.5rem auto;
+}
+
+.expansion-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.turn-banner {
+  text-align: center;
+  padding: 0.5rem;
+  margin: 0;
+  background: #1e1e28;
+  border-bottom: 1px solid var(--border);
+}
+
 .lobby {
   padding: 1rem;
   max-width: 40rem;

@@ -1,3 +1,4 @@
+import { addCityToPlayer, runChooseCity } from "./cities.js";
 import {
   addBoardTokens,
   addValidAction,
@@ -13,6 +14,11 @@ import {
   takeCardFromBoard,
   trackWinEligible,
 } from "./game.js";
+import {
+  maybeExtraTokenAfterPurchase,
+  runTakeExtraTokenPower,
+  unlockPowersAfterAction,
+} from "./tradingPosts.js";
 import {
   addDevCard,
   addNoble,
@@ -73,6 +79,14 @@ export function decodeAction(raw: {
         action: "CHOOSE_SATCHEL_TOKEN",
         cardId: String(p.cardId ?? ""),
         selected: p.selected as TokenType,
+      };
+    case "CHOOSE_CITY":
+      return { action: "CHOOSE_CITY", cityId: String(p.cityId ?? "") };
+    case "TAKE_EXTRA_TOKEN_AFTER_PURCHASE_POWER":
+      return {
+        action: "TAKE_EXTRA_TOKEN_AFTER_PURCHASE_POWER",
+        takeToken: p.takeToken as TokenType | undefined,
+        putBackToken: p.putBackToken as TokenType | undefined,
       };
     default:
       throw new Error(`Unknown action: ${raw.action}`);
@@ -180,7 +194,13 @@ function applyDevCard(
     }
   }
 
-  if (fromBuy && results.length === 0) {
+  if (fromBuy) {
+    maybeExtraTokenAfterPurchase(state, player, results);
+  }
+  const pendingMust = results.some((r) => r.startsWith("MUST_"));
+  if (fromBuy && !pendingMust && !results.includes("TURN_COMPLETED")) {
+    results.push("TURN_COMPLETED");
+  } else if (!fromBuy && results.length === 0) {
     results.push("TURN_COMPLETED");
   }
 }
@@ -374,6 +394,21 @@ export function runAction(
       case "CHOOSE_SATCHEL_TOKEN":
         runChooseSatchel(state, player, act.cardId, act.selected, results);
         break;
+      case "CHOOSE_CITY":
+        runChooseCity(state, player, act.cityId, results);
+        break;
+      case "TAKE_EXTRA_TOKEN_AFTER_PURCHASE_POWER":
+        runTakeExtraTokenPower(
+          state,
+          player,
+          act.takeToken,
+          act.putBackToken,
+          results,
+          addBoardTokens,
+          removeBoardTokens,
+          takeTokens,
+        );
+        break;
     }
   } catch (e) {
     return { results, error: e instanceof Error ? e.message : String(e) };
@@ -395,6 +430,17 @@ export function runAction(
       player.reservedNobles = player.reservedNobles.filter((x) => x.id !== n.id);
     }
     trackWinEligible(state, player, results);
+    if (
+      state.gameVersion === "BASE_ORIENT_CITIES" &&
+      !results.includes("MUST_CHOOSE_CITY")
+    ) {
+      addCityToPlayer(state, player.name, results);
+    }
+  }
+
+  unlockPowersAfterAction(state, player);
+  if (results.includes("MUST_TAKE_EXTRA_TOKEN_AFTER_PURCHASE")) {
+    addValidAction(state, "TAKE_EXTRA_TOKEN_AFTER_PURCHASE_POWER");
   }
 
   const pending = results.some((r) => r.startsWith("MUST_"));
