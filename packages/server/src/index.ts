@@ -248,10 +248,31 @@ function handleMessage(room: RoomData, playerId: string, msg: Record<string, unk
   }
 }
 
-const clientStatic = process.env.CLIENT_DIST;
-if (clientStatic) {
+const dominionDist = process.env.DOMINION_DIST;
+const siteDist = process.env.SITE_DIST;
+
+if (dominionDist) {
+  fastify.get("/dominion", async (_req, reply) => {
+    return reply.redirect("/dominion/", 301);
+  });
+
+  await fastify.register(
+    async function dominionApp(dominionScope) {
+      await dominionScope.register(staticFiles, {
+        root: dominionDist,
+        prefix: "/",
+      });
+      dominionScope.setNotFoundHandler(async (_req, reply) => {
+        return reply.sendFile("index.html");
+      });
+    },
+    { prefix: "/dominion" },
+  );
+}
+
+if (siteDist) {
   await fastify.register(staticFiles, {
-    root: clientStatic,
+    root: siteDist,
     prefix: "/",
   });
 }

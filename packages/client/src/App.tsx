@@ -9,6 +9,12 @@ import { useRoomWebSocket, type WsMsg } from "./useRoomWebSocket.js";
 
 const DISPLAY_NAME_KEY = "dominion_display_name";
 
+const GAME_BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+
+function gameRoomUrl(roomId: string): string {
+  return `${GAME_BASE}?room=${encodeURIComponent(roomId)}`;
+}
+
 export function App() {
   const [roomId, setRoomId] = useState("");
   const [name, setName] = useState(() => {
@@ -83,7 +89,7 @@ export function App() {
     sessionStorage.setItem("dominion_room", j.roomId);
     setPlayerId(j.playerId);
     setRoomId(j.roomId);
-    window.history.replaceState({}, "", `?room=${j.roomId}`);
+    window.history.replaceState({}, "", gameRoomUrl(j.roomId));
   };
 
   const joinRoom = () => {
@@ -91,7 +97,7 @@ export function App() {
     sessionStorage.setItem("dominion_pid", pid);
     sessionStorage.setItem("dominion_room", roomId.trim());
     setPlayerId(pid);
-    window.history.replaceState({}, "", `?room=${roomId.trim()}`);
+    window.history.replaceState({}, "", gameRoomUrl(roomId.trim()));
   };
 
   const leaveToMenu = useCallback(() => {
@@ -114,7 +120,7 @@ export function App() {
     setErr(null);
     setSelected([]);
     setRawCmd("");
-    window.history.replaceState({}, "", window.location.pathname);
+    window.history.replaceState({}, "", GAME_BASE);
   }, [room?.started]);
 
   const toggleSel = (i: number) => {

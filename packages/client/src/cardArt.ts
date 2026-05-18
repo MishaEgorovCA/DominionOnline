@@ -7,18 +7,20 @@ import type { CardId } from "@dominion/engine";
  */
 const EXTENSIONS = [".png", ".webp", ".jpg", ".jpeg"] as const;
 
+const assetBase = import.meta.env.BASE_URL;
+
 export function cardImageUrl(
   id: string,
   extIndex: number = 0,
 ): string {
   if (extIndex >= EXTENSIONS.length) return "";
-  return `/cards/${id}${EXTENSIONS[extIndex]}`;
+  return `${assetBase}cards/${id}${EXTENSIONS[extIndex]}`;
 }
 
 /** Face-down card back (optional user asset). */
 export function cardBackImageUrl(extIndex: number = 0): string {
   if (extIndex >= EXTENSIONS.length) return "";
-  return `/cards/_back${EXTENSIONS[extIndex]}`;
+  return `${assetBase}cards/_back${EXTENSIONS[extIndex]}`;
 }
 
 export function nextCardImageUrl(

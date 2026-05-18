@@ -5,8 +5,8 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build -w @dominion/engine && npm run build -w @dominion/server && npm run build -w @dominion/client",
-    "dev": "concurrently \"npm run dev -w @dominion/server\" \"npm run dev -w @dominion/client\"",
+    "build": "npm run build -w @dominion/engine && npm run build -w @dominion/site && npm run build -w @dominion/client && npm run build -w @dominion/server",
+    "dev": "concurrently \"npm run dev -w @dominion/server\" \"npm run dev -w @dominion/client\" \"npm run dev -w @dominion/site\"",
     "test": "npm run test -w @dominion/engine",
     "lint": "eslint packages/*/src --ext .ts,.tsx"
   },
